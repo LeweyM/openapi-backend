@@ -235,41 +235,49 @@ describe.each([{}, { lazyCompileValidators: true }])('OpenAPIValidator with opts
       test('passes validation for GET /pets', async () => {
         const valid = validator.validateRequest({ path: '/pets', method: 'get', headers });
         expect(valid.errors).toBeFalsy();
+        expect(valid.params.query).toMatchObject({ });
       });
 
       test('passes validation for GET /pets?limit=10', async () => {
         const valid = validator.validateRequest({ path: '/pets?limit=10', method: 'get', headers });
         expect(valid.errors).toBeFalsy();
+        expect(valid.params.query).toMatchObject({ limit: 10 });
       });
 
       test('passes validation for GET /pets?offset=10', async () => {
         const valid = validator.validateRequest({ path: '/pets?offset=10', method: 'get', headers });
         expect(valid.errors).toBeFalsy();
+        expect(valid.params.query).toMatchObject({ offset: 10 });
       });
 
       test('passes validation for GET /pets?limit=10&offset=10', async () => {
         const valid = validator.validateRequest({ path: '/pets?limit=10&offset=10', method: 'get', headers });
         expect(valid.errors).toBeFalsy();
+        expect(valid.params.query).toMatchObject({ limit: 10, offset: 10 });
       });
 
       test('fails validation for GET /pets?limit=NaN', async () => {
         const valid = validator.validateRequest({ path: '/pets?limit=NaN', method: 'get', headers });
         expect(valid.errors).toHaveLength(1);
+        expect(valid.params).toBeUndefined();
       });
 
       test('fails validation for GET /pets?limit=-1', async () => {
         const valid = validator.validateRequest({ path: '/pets?limit=-1', method: 'get', headers });
         expect(valid.errors).toHaveLength(1);
+        expect(valid.params).toBeUndefined();
       });
 
       test('fails validation for GET /pets?limit=999999999', async () => {
         const valid = validator.validateRequest({ path: '/pets?limit=999999999', method: 'get', headers });
         expect(valid.errors).toHaveLength(1);
+        expect(valid.params).toBeUndefined();
       });
 
       test('fails validation for GET /pets?unknownparam=1', async () => {
         const valid = validator.validateRequest({ path: '/pets?unknownparam=1', method: 'get', headers });
         expect(valid.errors).toHaveLength(1);
+        expect(valid.params).toBeUndefined();
       });
     });
 
@@ -313,36 +321,43 @@ describe.each([{}, { lazyCompileValidators: true }])('OpenAPIValidator with opts
       test('passes validation for GET /pets?limit=10', async () => {
         const valid = validator.validateRequest({ path: '/pets?limit=10', method: 'get', headers });
         expect(valid.errors).toBeFalsy();
+        expect(valid.params.query).toMatchObject({ limit: 10 });
       });
 
       test('fails validation for GET /pets?limit=10&limit=20', async () => {
         const valid = validator.validateRequest({ path: '/pets?unknownparam=1', method: 'get', headers });
         expect(valid.errors).toHaveLength(1);
+        expect(valid.params).toBeUndefined();
       });
 
       test('passes validation for GET /pets?q=search', async () => {
         const valid = validator.validateRequest({ path: '/pets?q=search', method: 'get', headers });
         expect(valid.errors).toBeFalsy();
+        expect(valid.params.query).toMatchObject({ q: [ 'search' ] });
       });
 
       test('passes validation for GET /pets?q=search1&q=search2', async () => {
         const valid = validator.validateRequest({ path: '/pets?q=search1&q=search2', method: 'get', headers });
         expect(valid.errors).toBeFalsy();
+        expect(valid.params.query).toMatchObject({ q: [ 'search1', 'search2'] });
       });
 
       test('passes validation for GET /pets?q[]=search1&q[]=search2', async () => {
         const valid = validator.validateRequest({ path: '/pets?q[]=search1&q[]=search2', method: 'get', headers });
         expect(valid.errors).toBeFalsy();
+        expect(valid.params.query).toMatchObject({ q: [ 'search1', 'search2'] });
       });
 
       test('passes validation for GET /pets?q[0]=search1&q[1]=search2', async () => {
         const valid = validator.validateRequest({ path: '/pets?q[0]=search1&q[1]=search2', method: 'get', headers });
         expect(valid.errors).toBeFalsy();
+        expect(valid.params.query).toMatchObject({ q: [ 'search1', 'search2'] });
       });
 
       test('fails validation for GET /pets?unknownparam=1', async () => {
         const valid = validator.validateRequest({ path: '/pets?unknownparam=1', method: 'get', headers });
         expect(valid.errors).toHaveLength(1);
+        expect(valid.params).toBeUndefined();
       });
     });
 
@@ -391,14 +406,17 @@ describe.each([{}, { lazyCompileValidators: true }])('OpenAPIValidator with opts
       test('passes validation for free-form schema of integer', async () => {
         const valid = validator.validateRequest({ path: '/pets?arbitraryKeyInteger=4', method: 'get', headers });
         expect(valid.errors).toBeFalsy();
+        expect(valid.params.query).toMatchObject({ arbitraryKeyInteger: 4 });
       });
       test('passes validation for free-form schema of number', async () => {
         const valid = validator.validateRequest({ path: '/pets?arbitraryKeyNumber=4.7', method: 'get', headers });
         expect(valid.errors).toBeFalsy();
+        expect(valid.params.query).toMatchObject({ arbitraryKeyNumber: 4.7 });
       });
       test(`fails validation for free-form value that's not one of the specified schemas`, async () => {
         const valid = validator.validateRequest({ path: '/pets?arbitraryKeyString=string', method: 'get', headers });
         expect(valid.errors).toHaveLength(1);
+        expect(valid.params).toBeUndefined();
       });
     });
 
@@ -441,10 +459,12 @@ describe.each([{}, { lazyCompileValidators: true }])('OpenAPIValidator with opts
       test('passes validation for properties of the query object', async () => {
         const valid = validator.validateRequest({ path: '/pets?age=4&breed=pug', method: 'get', headers });
         expect(valid.errors).toBeFalsy();
+        expect(valid.params.query).toMatchObject({ age: 4, breed: 'pug' });
       });
       test(`fails validation for additional properties`, async () => {
         const valid = validator.validateRequest({ path: '/pets?query-parameter=something', method: 'get', headers });
         expect(valid.errors).toHaveLength(1);
+        expect(valid.params).toBeUndefined();
       });
     });
 
@@ -499,14 +519,17 @@ describe.each([{}, { lazyCompileValidators: true }])('OpenAPIValidator with opts
       test('passes validation for properties of type A of the query object', async () => {
         const valid = validator.validateRequest({ path: '/pets?age=4&breed=pug', method: 'get', headers });
         expect(valid.errors).toBeFalsy();
+        expect(valid.params.query).toMatchObject({ age: 4, breed: 'pug' });
       });
       test('passes validation for properties of type B of the query object', async () => {
         const valid = validator.validateRequest({ path: '/pets?name=spot', method: 'get', headers });
         expect(valid.errors).toBeFalsy();
+        expect(valid.params.query).toMatchObject({ name: 'spot' });
       });
       test(`fails validation for additional properties`, async () => {
         const valid = validator.validateRequest({ path: '/pets?query-parameter=something', method: 'get', headers });
         expect(valid.errors).toHaveLength(3);
+        expect(valid.params).toBeUndefined();
       });
     })
 
@@ -556,18 +579,22 @@ describe.each([{}, { lazyCompileValidators: true }])('OpenAPIValidator with opts
       test('passes validation for properties of type A and B of the query object', async () => {
         const valid = validator.validateRequest({ path: '/pets?from=5&to=4&take=all', method: 'get', headers });
         expect(valid.errors).toBeFalsy();
+        expect(valid.params.query).toMatchObject({ from: 5, to: 4, take: 'all' });
       });
       test('fails validation for properties of type A of the query object', async () => {
         const valid = validator.validateRequest({ path: '/pets?from=5&take=all', method: 'get', headers });
         expect(valid.errors).toHaveLength(1);
+        expect(valid.params).toBeUndefined();
       });
       test('fails validation for properties of type B of the query object', async () => {
         const valid = validator.validateRequest({ path: '/pets?from=5&to=3', method: 'get', headers });
         expect(valid.errors).toHaveLength(1);
+        expect(valid.params).toBeUndefined();
       });
       test(`fails validation for additional properties`, async () => {
         const valid = validator.validateRequest({ path: '/pets?query-parameter=something', method: 'get', headers });
         expect(valid.errors).toHaveLength(1);
+        expect(valid.params).toBeUndefined();
       });
     })
 
@@ -624,22 +651,28 @@ describe.each([{}, { lazyCompileValidators: true }])('OpenAPIValidator with opts
       test('passes validation for properties of type A, B and C of the query object', async () => {
         const valid = validator.validateRequest({ path: '/pets?from=5&to=4&take=all', method: 'get', headers });
         expect(valid.errors).toBeFalsy();
+        // coercion 'to' to number not working -> 
+        // expect(valid.params.query).toMatchObject({ from: 5, to: 4, take: 'all' });
       });
       test('passes validation for properties of type A and C of the query object', async () => {
         const valid = validator.validateRequest({ path: '/pets?from=5&take=all', method: 'get', headers });
+        expect(valid.params.query).toMatchObject({ from: 5, take: 'all' });
         expect(valid.errors).toBeFalsy();
       });
       test('passes validation for properties of type B and C of the query object', async () => {
         const valid = validator.validateRequest({ path: '/pets?from=5&to=3', method: 'get', headers });
+        expect(valid.params.query).toMatchObject({ from: 5, to: 3 });
         expect(valid.errors).toBeFalsy();
       });
       test('passes validation for properties of C of the query object', async () => {
         const valid = validator.validateRequest({ path: '/pets?from=5', method: 'get', headers });
+        expect(valid.params.query).toMatchObject({ from: 5 });
         expect(valid.errors).toBeFalsy();
       });
       test(`fails validation for additional properties`, async () => {
         const valid = validator.validateRequest({ path: '/pets?extra=something', method: 'get', headers });
         expect(valid.errors).toHaveLength(4);
+        expect(valid.params).toBeUndefined();
       });
     })
 
