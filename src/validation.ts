@@ -16,6 +16,7 @@ type Document = OpenAPIV3_1.Document | OpenAPIV3.Document;
  */
 export interface ValidationResult {
   valid: boolean;
+  params?: InputParameters | null;
   errors?: ErrorObject[] | null;
 }
 
@@ -308,8 +309,7 @@ export class OpenAPIValidator<D extends Document = Document> {
         result.errors.push(...validate.errors);
       }
       else {
-        // set Ajv validator coerced query to request
-        req.query = parameters.query
+        result.params = parameters;
       }
     }
 

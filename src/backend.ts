@@ -288,7 +288,7 @@ export class OpenAPIBackend<D extends Document = Document> {
     }
 
     // initalize context object with a reference to this OpenAPIBackend instance
-    const context: Partial<Context<any,any,any,any,any,D>> = { api: this };
+    const context: Partial<Context<any, any, any, any, any, D>> = { api: this };
 
     // handle request with correct handler
     const response: any = await (async () => {
@@ -421,7 +421,7 @@ export class OpenAPIBackend<D extends Document = Document> {
       }
 
       // handle route
-      return routeHandler(context as Context<D>, req, ...handlerArgs);
+      return routeHandler(context as Context<D>, ...handlerArgs);
     }).bind(this)();
 
     // post response handler
